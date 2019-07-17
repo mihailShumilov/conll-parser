@@ -40,12 +40,15 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         $parser = new Parser($data);
         $parser->parse();
         $json = $parser->toJSON();
+
         $this->assertJson($json);
     }
 
     public function provider(): array {
-        $text = file_get_contents(__DIR__ . '/../text/t4.conll');
-        return [[$text]];
+        $text1 = file_get_contents(__DIR__ . '/../text/t4.conll');
+        $text2 = file_get_contents(__DIR__ . '/../text/t2.conll');
+        $text3 = file_get_contents(__DIR__ . '/../text/t1.conll');
+        return [[$text1],[$text2],[$text3]];
     }
 
 }

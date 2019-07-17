@@ -39,7 +39,9 @@ class Parser {
     public function parse(): void {
         $lines = explode("\n", $this->conllText);
         foreach ($lines as $line) {
-            $this->processSingleLine($line);
+            if(mb_strlen($line) > 0) {
+                $this->processSingleLine($line);
+            }
         }
 
         $this->tree = $this->buildTreeFromObjects($this->entities);
