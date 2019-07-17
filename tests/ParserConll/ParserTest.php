@@ -14,15 +14,17 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * @dataProvider provider
+     *
      * @param string $data
      */
     public function testInit(string $data): void {
         $parser = new Parser($data);
-        $this->assertTrue($parser instanceof Parser , 'Can\'t initialize parser');
+        $this->assertTrue($parser instanceof Parser, 'Can\'t initialize parser');
     }
 
     /**
      * @dataProvider provider
+     *
      * @param string $data
      */
     public function testParse(string $data): void {
@@ -34,6 +36,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
     /**
      * @dataProvider provider
+     *
      * @param string $data
      */
     public function testJson(string $data): void {
@@ -45,10 +48,13 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
     }
 
     public function provider(): array {
-        $text1 = file_get_contents(__DIR__ . '/../text/t4.conll');
-        $text2 = file_get_contents(__DIR__ . '/../text/t2.conll');
-        $text3 = file_get_contents(__DIR__ . '/../text/t1.conll');
-        return [[$text1],[$text2],[$text3]];
+        $data = [];
+        $files = glob(__DIR__ . '/../text/*.conll');
+        foreach ($files as $file) {
+            $content = file_get_contents($file);
+            $data[]  = [$content];
+        }
+        return $data;
     }
 
 }
