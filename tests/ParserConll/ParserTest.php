@@ -21,6 +21,17 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         $this->assertTrue($parser instanceof Parser , 'Can\'t initialize parser');
     }
 
+    /**
+     * @dataProvider provider
+     * @param string $data
+     */
+    public function testParse(string $data): void {
+        $parser = new Parser($data);
+        $parser->parse();
+        $entityList = $parser->getEntities();
+        $this->assertNotEmpty($entityList);
+    }
+
     public function provider(): array {
         $text = file_get_contents(__DIR__ . '/../text/t4.conll');
         return [[$text]];
