@@ -7,7 +7,7 @@ namespace ParserConll;
  * Class Entity
  * @package ParserConll
  */
-class Entity {
+class Entity implements \JsonSerializable {
 
     /**
      * @var string
@@ -123,5 +123,10 @@ class Entity {
 
         return $attr;
     }
+
+    public function jsonSerialize() {
+        return get_object_vars($this);
+    }
+
 
 }

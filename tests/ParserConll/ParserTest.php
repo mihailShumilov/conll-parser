@@ -32,6 +32,17 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         $this->assertNotEmpty($entityList);
     }
 
+    /**
+     * @dataProvider provider
+     * @param string $data
+     */
+    public function testJson(string $data): void {
+        $parser = new Parser($data);
+        $parser->parse();
+        $json = $parser->toJSON();
+        $this->assertJson($json);
+    }
+
     public function provider(): array {
         $text = file_get_contents(__DIR__ . '/../text/t4.conll');
         return [[$text]];

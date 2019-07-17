@@ -88,5 +88,12 @@ class Parser {
         return $this->tree;
     }
 
+    /**
+     * @return false|string
+     */
+    public function toJSON(){
+        return json_encode($this->tree);
+    }
+
 
 }
