@@ -124,6 +124,9 @@ class Entity implements \JsonSerializable {
         return $attr;
     }
 
+    /**
+     * @return array|mixed
+     */
     public function jsonSerialize() {
         return get_object_vars($this);
     }
