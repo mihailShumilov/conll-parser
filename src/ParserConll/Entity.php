@@ -9,6 +9,14 @@ namespace ParserConll;
  */
 class Entity implements \JsonSerializable {
 
+    public const ROLE_NAME = 'name';
+
+    public const ROLE_APPOS = 'appos';
+
+    public const ROLE_DOBJ = 'dobj';
+
+    public const ROLE_AMOD = 'amod';
+
     /**
      * @var string
      */
@@ -115,8 +123,8 @@ class Entity implements \JsonSerializable {
      */
     protected function parseAttributes(string $data): array {
         $parts = explode('|', $data);
-        $attr = [];
-        foreach($parts as $part){
+        $attr  = [];
+        foreach ($parts as $part) {
             list($key, $val) = explode('=', $part);
             $attr[$key] = $val;
         }

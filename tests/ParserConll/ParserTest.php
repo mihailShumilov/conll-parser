@@ -32,6 +32,9 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         $parser->parse();
         $entityList = $parser->getEntities();
         $this->assertNotEmpty($entityList);
+
+        $persons = $parser->getPersons();
+        $this->assertIsArray($persons);
     }
 
     /**
