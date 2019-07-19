@@ -124,6 +124,9 @@ class Parser {
     }
 
     public function getPersons(): array {
+        //TODO check if that not fail other logic
+        $this->usedTreeItems = [];
+
         $persons = [];
         foreach ($this->entities as $entity) {
             if ($entity->getRole() === Entity::ROLE_NAME) {
@@ -131,7 +134,10 @@ class Parser {
                 $personData   = [];
                 $parentEntity = false;
                 foreach ($this->entities as $pentity) {
-                    if (($pentity->getRole() === Entity::ROLE_APPOS) && ($pentity->getId() === $entity->getParentID())) {
+                    if (in_array($pentity->getRole(), [
+                            Entity::ROLE_APPOS,
+                            Entity::ROLE_NMOD
+                        ]) && ($pentity->getId() === $entity->getParentID())) {
                         $parentEntity = $pentity;
                         break;
                     }
@@ -143,7 +149,10 @@ class Parser {
                     $personLabel = $parentEntity->getWord() . ' ' . $personLabel;
                 }
                 $personData['label'] = $personLabel;
-                $personData['role']  = $this->getPersonPosition($parentEntity ? $parentEntity : $entity);
+                list($role, $action) = $this->getPersonPosition($parentEntity ? $parentEntity : $entity);
+                $personData['role']   = $role;
+                $personData['action'] = $action;
+
 
                 $persons[] = $personData;
             }
@@ -152,7 +161,7 @@ class Parser {
         return $persons;
     }
 
-    private function getPersonPosition(Entity $entity): string {
+    private function getPersonPosition(Entity $entity): array {
         $role = '';
 
         $entityID = $entity->getParentID();
@@ -181,18 +190,27 @@ class Parser {
             }
         }
 
-        $roleSubj = $this->getRoleSubj($splitItem);
-
-        if (!empty($roleSubj)) {
-
-            array_push($vector, ...$roleSubj);
-
+        $roleSubj   = $this->getRoleSubj($splitItem);
+        $roleAction = [];
+        if ($roleActionItem = $this->getVerb($splitItem)) {
+            $roleAction = $this->getPersonAction($roleActionItem);
         }
 
+        if (!empty($roleSubj)) {
+            array_push($vector, ...$roleSubj);
+        }
 
-        $role = implode(' ', $vector);
+//        if (!empty($roleAction)) {
+//            echo PHP_EOL;
+//            print_r($roleAction);
+//            echo PHP_EOL;
+//        }
 
-        return $role;
+
+        $role   = implode(' ', $vector);
+        $action = implode(' ', $roleAction);
+
+        return [$role, $action];
     }
 
     private function getParentEntity(int $entityID): ?\stdClass {
@@ -230,7 +248,7 @@ class Parser {
                     $this->setAsUsed($item->id);
                 }
 
-                if (isset($item->childs)) {
+                if (isset($item->childs) && (!in_array($item->wordForm, [Entity::WORD_FORM_VERB]))) {
                     $nestedResult = $this->getRoleSubj($item);
                     if (!empty($nestedResult)) {
                         array_push($roleSubj, ...$nestedResult);
@@ -240,6 +258,66 @@ class Parser {
         }
 
         return $roleSubj;
+    }
+
+
+    private function getPersonAction(\stdClass $tree): array {
+        $roleAction = [];
+
+        $roleAction[$tree->id] = $tree->word;
+
+        foreach ($tree->childs as $item) {
+
+                if (in_array($item->wordForm, [Entity::WORD_FORM_VERB, Entity::WORD_FORM_ADJ, Entity::WORD_FORM_ADV])
+                    || in_array($item->role, [Entity::ROLE_DOBJ, Entity::ROLE_CASE, Entity::ROLE_CONJ])) {
+
+                    if (!in_array((int)$item->id, $this->usedTreeItems)) {
+                        $roleAction[$item->id] = $item->word;
+                    }
+
+//                    if (!in_array($item->wordForm, [Entity::WORD_FORM_VERB])) {
+                        $this->setAsUsed($item->id);
+//                    }
+
+
+
+                if (isset($item->childs)) {
+                    $nestedResult = $this->getPersonAction($item);
+                    if (!empty($nestedResult)) {
+                        foreach($nestedResult as $nrID => $nr){
+                            $roleAction[$nrID] = $nr;
+                        }
+                    }
+                }
+            }
+        }
+
+        ksort($roleAction);
+
+        return $roleAction;
+    }
+
+    private function getVerb(\stdClass $tree): ?\stdClass {
+        if ($tree->wordForm === Entity::WORD_FORM_VERB) {
+            return $tree;
+        }
+
+        $search = true;
+        $check  = $tree;
+        while ($search) {
+            if ($result = $this->getParentEntity($check->parentID)) {
+                if ($result->wordForm === Entity::WORD_FORM_VERB) {
+                    $search = false;
+                    return $result;
+                } else {
+                    $check = $result;
+                }
+            } else {
+                $search = false;
+            }
+        }
+
+        return null;
     }
 
 }

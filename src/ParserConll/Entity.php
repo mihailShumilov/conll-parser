@@ -9,13 +9,18 @@ namespace ParserConll;
  */
 class Entity implements \JsonSerializable {
 
-    public const ROLE_NAME = 'name';
-
+    public const ROLE_NAME  = 'name';
     public const ROLE_APPOS = 'appos';
+    public const ROLE_DOBJ  = 'dobj';
+    public const ROLE_AMOD  = 'amod';
+    public const ROLE_NMOD  = 'nmod';
+    public const ROLE_CASE  = 'case';
+    public const ROLE_CONJ  = 'conj';
 
-    public const ROLE_DOBJ = 'dobj';
 
-    public const ROLE_AMOD = 'amod';
+    public const WORD_FORM_VERB = 'VERB';
+    public const WORD_FORM_ADV  = 'ADV';
+    public const WORD_FORM_ADJ  = 'ADJ';
 
     /**
      * @var string
