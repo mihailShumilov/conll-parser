@@ -16,11 +16,26 @@ class Entity implements \JsonSerializable {
     public const ROLE_NMOD  = 'nmod';
     public const ROLE_CASE  = 'case';
     public const ROLE_CONJ  = 'conj';
+    public const ROLE_DET   = 'det';
+    public const ROLE_CC    = 'cc';
 
 
     public const WORD_FORM_VERB = 'VERB';
     public const WORD_FORM_ADV  = 'ADV';
     public const WORD_FORM_ADJ  = 'ADJ';
+    public const WORD_FORM_NOUN = 'NOUN';
+    public const WORD_FORM_DET  = 'DET';
+    public const WORD_FORM_CONJ = 'CONJ';
+
+
+    public const ATTR_ANIMACY_ANIM = 'anim';
+    public const ATTR_ANIMACY_INAN = 'inan';
+    public const ATTR_CASE_DAT     = 'dat';
+    public const ATTR_CASE_NOM     = 'nom';
+
+    public const ATTRIBUTE_ANIMACY = 'Animacy';
+    public const ATTRIBUTE_CASE    = 'Case';
+
 
     /**
      * @var string
