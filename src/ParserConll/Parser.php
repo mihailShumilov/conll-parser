@@ -141,7 +141,8 @@ class Parser {
                 foreach ($this->entities as $pentity) {
                     if (in_array($pentity->getRole(), [
                             Entity::ROLE_APPOS,
-                            Entity::ROLE_NMOD
+                            Entity::ROLE_NMOD,
+                            Entity::ROLE_NSUBJ
                         ], false) && ($pentity->getId() === $entity->getParentID())) {
                         $parentEntity = $pentity;
                         break;
@@ -277,23 +278,22 @@ class Parser {
 
         foreach ($tree->childs as $item) {
             if (!in_array((int)$item->id, $this->usedTreeItems)) {
-                if (in_array($item->role, [Entity::ROLE_DOBJ, Entity::ROLE_AMOD])) {
+                if (in_array($item->role, [Entity::ROLE_DOBJ, Entity::ROLE_AMOD, Entity::ROLE_CASE])) {
                     $roleSubj[$item->id] = $item->word;
                     $this->setAsUsed($item->id);
                 }
 
                 if (in_array($item->wordForm, [Entity::WORD_FORM_NOUN])
                     && isset($item->attributes->{Entity::ATTRIBUTE_ANIMACY})
-                    && in_array($item->attributes->{Entity::ATTRIBUTE_ANIMACY},
+                    && in_array(mb_strtolower($item->attributes->{Entity::ATTRIBUTE_ANIMACY}),
                                 [Entity::ATTR_ANIMACY_ANIM, Entity::ATTR_ANIMACY_INAN])) {
-                    $roleSubj[] = $item->word;
+                    $roleSubj[$item->id] = $item->word;
                     $this->setAsUsed($item->id);
                 }
 
                 if (isset($item->childs) && (!in_array($item->wordForm, [Entity::WORD_FORM_VERB]))) {
                     $nestedResult = $this->getRoleSubj($item);
                     if (!empty($nestedResult)) {
-
                         foreach ($nestedResult as $nrID => $nr) {
                             $roleSubj[$nrID] = $nr;
                         }
@@ -325,7 +325,9 @@ class Parser {
                     Entity::WORD_FORM_ADJ,
                     Entity::WORD_FORM_ADV,
                     Entity::WORD_FORM_DET,
-                    Entity::WORD_FORM_CONJ
+                    Entity::WORD_FORM_CONJ,
+                    Entity::WORD_FORM_PART,
+                    Entity::WORD_FORM_ADP,
                 ], false)
                 || in_array($item->role, [Entity::ROLE_DOBJ, Entity::ROLE_CASE, Entity::ROLE_CONJ], false)
                 ||

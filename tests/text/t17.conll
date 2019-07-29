@@ -1,0 +1,10 @@
+1	По	_	ADP	_	fPOS=ADP++	2	case	_	_
+2	стилю	_	NOUN	_	Animacy=Inan|Case=Dat|Gender=Masc|Number=Sing|fPOS=NOUN++	8	nmod	_	_
+3	игры	_	NOUN	_	Animacy=Inan|Case=Gen|Gender=Fem|Number=Sing|fPOS=NOUN++	2	nmod	_	_
+4	Александр	_	NOUN	_	Animacy=Anim|Case=Nom|Gender=Masc|Number=Sing|fPOS=NOUN++	8	nsubj	_	_
+5	Хацкевич	_	NOUN	_	Animacy=Anim|Case=Nom|Gender=Masc|Number=Sing|fPOS=NOUN++	4	name	_	_
+6	ничего	_	PRON	_	fPOS=PRON++	8	dobj	_	_
+7	не	_	PART	_	fPOS=PART++	8	neg	_	_
+8	стоит	_	VERB	_	Aspect=Imp|Mood=Ind|Number=Sing|Person=3|Tense=Pres|VerbForm=Fin|Voice=Act|fPOS=VERB++	0	ROOT	_	_
+9	придумывать	_	VERB	_	Aspect=Imp|VerbForm=Inf|fPOS=VERB++	8	nsubj	_	_
+10	.	_	PUNCT	.	fPOS=PUNCT++.	8	punct	_	_

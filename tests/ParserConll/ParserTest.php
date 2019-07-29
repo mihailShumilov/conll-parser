@@ -35,6 +35,12 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
         $persons = $parser->getPersons();
         $this->assertIsArray($persons);
+
+        if(!empty($persons)) {
+            echo PHP_EOL;
+            print_r($persons);
+            echo PHP_EOL;
+        }
     }
 
     /**

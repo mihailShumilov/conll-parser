@@ -18,6 +18,7 @@ class Entity implements \JsonSerializable {
     public const ROLE_CONJ  = 'conj';
     public const ROLE_DET   = 'det';
     public const ROLE_CC    = 'cc';
+    public const ROLE_NSUBJ = 'nsubj';
 
 
     public const WORD_FORM_VERB = 'VERB';
@@ -26,6 +27,8 @@ class Entity implements \JsonSerializable {
     public const WORD_FORM_NOUN = 'NOUN';
     public const WORD_FORM_DET  = 'DET';
     public const WORD_FORM_CONJ = 'CONJ';
+    public const WORD_FORM_PART = 'PART';
+    public const WORD_FORM_ADP = 'ADP';
 
 
     public const ATTR_ANIMACY_ANIM = 'anim';
