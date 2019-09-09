@@ -28,7 +28,7 @@ class Entity implements \JsonSerializable {
     public const WORD_FORM_DET  = 'DET';
     public const WORD_FORM_CONJ = 'CONJ';
     public const WORD_FORM_PART = 'PART';
-    public const WORD_FORM_ADP = 'ADP';
+    public const WORD_FORM_ADP  = 'ADP';
 
 
     public const ATTR_ANIMACY_ANIM = 'anim';
