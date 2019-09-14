@@ -1,0 +1,17 @@
+1	Позже	_	ADV	_	Degree=Pos|fPOS=ADV++	3	advmod	_	_
+2	шар	_	NOUN	_	Animacy=Inan|Case=Nom|Gender=Masc|Number=Sing|fPOS=NOUN++	3	nsubj	_	_
+3	отправился	_	VERB	_	Aspect=Perf|Gender=Masc|Mood=Ind|Number=Sing|Tense=Past|VerbForm=Fin|Voice=Act|fPOS=VERB++	0	ROOT	_	_
+4	к	_	ADP	_	fPOS=ADP++	6	case	_	_
+5	телеведущей	_	ADJ	_	Case=Dat|Degree=Pos|Gender=Fem|Number=Sing|fPOS=ADJ++	6	amod	_	_
+6	Надежде	_	NOUN	_	Animacy=Inan|Case=Dat|Gender=Fem|Number=Sing|fPOS=NOUN++	3	nmod	_	_
+7	Матвеевой	_	ADJ	_	Animacy=Anim|Case=Dat|Gender=Fem|Number=Sing|fPOS=NOUN++	3	nmod	_	_
+8	,	_	PUNCT	,	fPOS=PUNCT++,	7	punct	_	_
+9	ведущей	_	VERB	_	Aspect=Imp|Case=Ins|Gender=Fem|Number=Sing|Tense=Pres|VerbForm=Part|Voice=Act|fPOS=VERB++	7	amod	_	_
+10	Завтрак	_	NOUN	_	Animacy=Inan|Case=Acc|Gender=Masc|Number=Sing|fPOS=NOUN++	9	dobj	_	_
+11	1+1	_	NUM	_	fPOS=NUM++	12	nummod	_	_
+12	Людмилы	_	NOUN	_	Animacy=Anim|Case=Gen|Gender=Fem|Number=Sing|fPOS=NOUN++	9	nmod	_	_
+13	Барбир	_	NOUN	_	Animacy=Anim|Case=Gen|Gender=Fem|Number=Sing|fPOS=NOUN++	12	name	_	_
+14	и	_	CONJ	_	fPOS=CONJ++	12	cc	_	_
+15	продюсера	_	NOUN	_	Animacy=Anim|Case=Gen|Gender=Masc|Number=Sing|fPOS=NOUN++	12	conj	_	_
+16	Потапа	_	NOUN	_	Animacy=Anim|Case=Gen|Gender=Masc|Number=Sing|fPOS=NOUN++	15	name	_	_
+17	.	_	PUNCT	.	fPOS=PUNCT++.	3	punct	_	_

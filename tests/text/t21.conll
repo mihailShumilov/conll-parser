@@ -1,0 +1,13 @@
+1	Также	_	ADV	_	Degree=Pos|fPOS=ADV++	3	advmod	_	_
+2	дискобол	_	NOUN	_	Animacy=Inan|Case=Acc|Gender=Masc|Number=Sing|fPOS=NOUN++	3	dobj	_	_
+3	получили	_	VERB	_	Aspect=Perf|Mood=Ind|Number=Plur|Tense=Past|VerbForm=Fin|Voice=Act|fPOS=VERB++	0	ROOT	_	_
+4	актеры	_	NOUN	_	Animacy=Anim|Case=Nom|Gender=Masc|Number=Plur|fPOS=NOUN++	3	nsubj	_	_
+5	сериала	_	VERB	_	Animacy=Inan|Case=Gen|Gender=Masc|Number=Sing|fPOS=NOUN++	4	cc	_	_
+6	Крепостная	_	ADJ	_	Case=Nom|Degree=Pos|Gender=Fem|Number=Sing|fPOS=ADJ++	4	amod	_	_
+7	-	_	PUNCT	-	fPOS=PUNCT++-	6	punct	_	_
+8	Алексей	_	NOUN	_	Animacy=Anim|Case=Nom|Gender=Masc|Number=Sing|fPOS=NOUN++	6	parataxis	_	_
+9	Яровенко	_	NOUN	_	Animacy=Anim|Case=Nom|Gender=Masc|Number=Sing|fPOS=NOUN++	8	name	_	_
+10	и	_	CONJ	_	fPOS=CONJ++	8	cc	_	_
+11	Ксения	_	NOUN	_	Animacy=Inan|Case=Nom|Gender=Neut|Number=Plur|fPOS=NOUN++	8	conj	_	_
+12	Мишина	_	NOUN	_	Animacy=Anim|Case=Gen|Gender=Masc|Number=Sing|fPOS=NOUN++	11	nmod	_	_
+13	.	_	PUNCT	.	fPOS=PUNCT++.	3	punct	_	_
