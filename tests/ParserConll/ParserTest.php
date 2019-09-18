@@ -3,6 +3,8 @@
 namespace ParserConll;
 
 
+use Symfony\Component\VarDumper\VarDumper;
+
 class ParserTest extends \PHPUnit\Framework\TestCase {
 
     /**
@@ -33,6 +35,8 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
         $entityList = $parser->getEntities();
         $this->assertNotEmpty($entityList);
 
+//        VarDumper::dump($parser->getTree());
+
         $persons = $parser->getPersons();
         $this->assertIsArray($persons);
 
@@ -58,7 +62,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
     public function provider(): array {
         $data = [];
-        $files = glob(__DIR__ . '/../text/*.conll');
+        $files = glob(__DIR__ . '/../text/t11.conll');
         foreach ($files as $file) {
             $content = file_get_contents($file);
             $data[]  = [$content];

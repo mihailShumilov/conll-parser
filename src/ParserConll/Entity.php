@@ -9,16 +9,24 @@ namespace ParserConll;
  */
 class Entity implements \JsonSerializable {
 
-    public const ROLE_NAME  = 'name';
-    public const ROLE_APPOS = 'appos';
-    public const ROLE_DOBJ  = 'dobj';
-    public const ROLE_AMOD  = 'amod';
-    public const ROLE_NMOD  = 'nmod';
-    public const ROLE_CASE  = 'case';
-    public const ROLE_CONJ  = 'conj';
-    public const ROLE_DET   = 'det';
-    public const ROLE_CC    = 'cc';
+    // Nominal dependents
+    public const ROLE_APPOS  = 'appos';
+    public const ROLE_NMOD   = 'nmod';
+    public const ROLE_NUMMOD = 'nummod';
+
+    //Core
+    public const ROLE_OBJ   = 'obj';
+    public const ROLE_IOBJ  = 'iobj';
     public const ROLE_NSUBJ = 'nsubj';
+
+    public const ROLE_NAME = 'name';
+    public const ROLE_DOBJ = 'dobj';
+    public const ROLE_AMOD = 'amod';
+
+    public const ROLE_CASE = 'case';
+    public const ROLE_CONJ = 'conj';
+    public const ROLE_DET  = 'det';
+    public const ROLE_CC   = 'cc';
 
 
     public const WORD_FORM_VERB = 'VERB';
@@ -89,16 +97,16 @@ class Entity implements \JsonSerializable {
     protected function parse() {
         $parts = explode("\t", $this->line);
 
-        $this->id         = $parts[0];
+        $this->id         = (int)$parts[0];
         $this->word       = $parts[1];
         $this->wordForm   = $parts[3];
         $this->attributes = $this->parseAttributes($parts[5]);
-        $this->parentID   = $parts[6];
+        $this->parentID   = (int)$parts[6];
         $this->role       = $parts[7];
     }
 
     /**
-     * @return mixed
+     * @return integer
      */
     public function getId() {
         return $this->id;
@@ -133,7 +141,7 @@ class Entity implements \JsonSerializable {
     }
 
     /**
-     * @return mixed
+     * @return string
      */
     public function getRole() {
         return $this->role;

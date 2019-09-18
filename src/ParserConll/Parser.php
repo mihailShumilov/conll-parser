@@ -27,6 +27,23 @@ class Parser {
 
     private $usedTreeItems = [];
 
+    public const ROLE_ROOT = 'ROOT';
+
+    /**
+     * @var Entity[]
+     */
+    private $persons = [];
+
+    /**
+     * @var integer[]
+     */
+    private $usedPersonsNodes = [];
+
+    /**
+     * @var string[]
+     */
+    private $subjectPositions = [];
+
     /**
      * Parser constructor.
      *
@@ -42,12 +59,13 @@ class Parser {
     public function parse(): void {
         $lines = explode("\n", $this->conllText);
         foreach ($lines as $line) {
-            if (mb_strlen($line) > 0) {
+            if ($line !== '') {
                 $this->processSingleLine($line);
             }
         }
 
-        $this->tree = $this->buildTreeFromObjects($this->entities);
+        $this->buildTreeFromObjects();
+        $this->processTree($this->tree);
 
     }
 
@@ -59,24 +77,37 @@ class Parser {
     }
 
     /**
-     * @param $items
      *
-     * @return array|mixed
      */
-    private function buildTreeFromObjects($items) {
-        $childs = [];
+    private function buildTreeFromObjects(): void {
+        $rootItem       = $this->getRootEntity();
+        $item           = [];
+        $item['entity'] = $rootItem;
+        $item['child']  = $this->getChildItem($rootItem->getId());
 
-        foreach ($items as $item) {
-            $childs[$item->getParentID() ?? 0][] = $item;
+        $this->tree[] = $item;
+    }
+
+    private function getRootEntity(): Entity {
+        foreach ($this->entities as $entity) {
+            if ($entity->getRole() === self::ROLE_ROOT) {
+                return $entity;
+            }
         }
+    }
 
-        foreach ($items as $item) {
-            if (isset($childs[$item->getId()])) {
-                $item->childs = $childs[$item->getId()];
+    private function getChildItem(int $parentId): array {
+        $result = [];
+        foreach ($this->entities as $entity) {
+            if ($entity->getParentID() === $parentId) {
+                $item           = [];
+                $item['entity'] = $entity;
+                $item['child']  = $this->getChildItem($entity->getId());
+                $result[]       = $item;
             }
         }
 
-        return $childs[0] ?? [];
+        return $result;
     }
 
     /**
@@ -130,41 +161,41 @@ class Parser {
      * @return array
      */
     public function getPersons(): array {
-        $this->usedTreeItems = [];
+//        $this->usedTreeItems = [];
+//
+//        $persons = [];
+//        foreach ($this->entities as $entity) {
+//            if ($entity->getRole() === Entity::ROLE_NAME) {
+//                $this->setAsUsed($entity->getId());
+//                $personData   = [];
+//                $parentEntity = false;
+//                foreach ($this->entities as $pentity) {
+//                    if (in_array($pentity->getRole(), [
+//                            Entity::ROLE_APPOS,
+//                            Entity::ROLE_NMOD,
+//                            Entity::ROLE_NSUBJ
+//                        ], false) && ($pentity->getId() === $entity->getParentID())) {
+//                        $parentEntity = $pentity;
+//                        break;
+//                    }
+//                }
+//
+//                $personLabel = $entity->getWord();
+//                if ($parentEntity) {
+//                    $this->setAsUsed($parentEntity->getId());
+//                    $personLabel = $parentEntity->getWord() . ' ' . $personLabel;
+//                }
+//                $personData['label'] = $personLabel;
+//                list($role, $action) = $this->getPersonPosition($parentEntity ? $parentEntity : $entity);
+//                $personData['role']   = $role;
+//                $personData['action'] = $action;
+//
+//
+//                $persons[] = $personData;
+//            }
+//        }
 
-        $persons = [];
-        foreach ($this->entities as $entity) {
-            if ($entity->getRole() === Entity::ROLE_NAME) {
-                $this->setAsUsed($entity->getId());
-                $personData   = [];
-                $parentEntity = false;
-                foreach ($this->entities as $pentity) {
-                    if (in_array($pentity->getRole(), [
-                            Entity::ROLE_APPOS,
-                            Entity::ROLE_NMOD,
-                            Entity::ROLE_NSUBJ
-                        ], false) && ($pentity->getId() === $entity->getParentID())) {
-                        $parentEntity = $pentity;
-                        break;
-                    }
-                }
-
-                $personLabel = $entity->getWord();
-                if ($parentEntity) {
-                    $this->setAsUsed($parentEntity->getId());
-                    $personLabel = $parentEntity->getWord() . ' ' . $personLabel;
-                }
-                $personData['label'] = $personLabel;
-                list($role, $action) = $this->getPersonPosition($parentEntity ? $parentEntity : $entity);
-                $personData['role']   = $role;
-                $personData['action'] = $action;
-
-
-                $persons[] = $personData;
-            }
-        }
-
-        return $persons;
+        return $this->persons;
     }
 
     /**
@@ -397,6 +428,85 @@ class Parser {
         }
 
         return null;
+    }
+
+    private function processTree(array $tree, int $level = 0): void {
+//        echo "\n";
+        foreach ($tree as $levelData) {
+            /**
+             * @var Entity $entity
+             */
+            $entity = $levelData['entity'];
+//            $preText = str_pad('', $level, "\t");
+//            print_r($preText . $level.' ');
+//            print_r($preText . $entity->getWord().' '.$entity->getId());
+//            echo "\n";
+            if (in_array($entity->getRole(), [
+                Entity::ROLE_APPOS,
+                Entity::ROLE_NMOD,
+                Entity::ROLE_NUMMOD,
+                Entity::ROLE_NSUBJ,
+                Entity::ROLE_OBJ,
+                Entity::ROLE_IOBJ
+            ], false)) {
+                $this->processSubjectNode($entity, $levelData['child']);
+            }
+            if (!empty($levelData['child'])) {
+                $this->processTree($levelData['child'], $level + 1);
+            }
+        }
+    }
+
+    /**
+     * @param Entity   $entity
+     * @param Entity[] $child
+     */
+    private function processSubjectNode(Entity $entity, array $child = []) {
+        if (!in_array($entity->getId(), $this->usedPersonsNodes, false)) {
+
+            //if node has child with role 'appos' - that is node with subject position
+
+            $subjectLabel  = $entity->getWord();
+            $positionLabel = '';
+            if (!empty($child)) {
+                foreach ($child as $childData) {
+                    $item = $childData['entity'];
+                    if (in_array($item->getRole(), [
+                        Entity::ROLE_DOBJ,
+                        Entity::ROLE_NAME,
+                        Entity::ROLE_NUMMOD
+                    ], false)) {
+                        $subjectLabel             .= ' ' . $item->getWord();
+                        $this->usedPersonsNodes[] = $item->getId();
+                    }
+                }
+            }
+
+            if (!empty($child)) {
+                foreach ($child as $childData) {
+                    $item = $childData['entity'];
+                    if (in_array($item->getRole(), [
+                        Entity::ROLE_APPOS
+                    ], false)) {
+                        $positionLabel                          .= $subjectLabel;
+                        $this->subjectPositions[$item->getId()] = $positionLabel;
+                        $subjectLabel                           = '';
+                    }
+                }
+            }
+
+            if ($subjectLabel) {
+                $this->usedPersonsNodes[] = $entity->getId();
+                $person                   = [];
+                $person['name']           = $subjectLabel;
+                if (isset($this->subjectPositions[$entity->getId()])) {
+                    $person['position'] = $this->subjectPositions[$entity->getId()];
+                }
+                $this->persons[] = $person;
+            }
+
+
+        }
     }
 
 }
