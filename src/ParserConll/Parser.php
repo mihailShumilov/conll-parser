@@ -25,7 +25,15 @@ class Parser {
     private $tree = [];
 
 
+    /**
+     * @var array
+     */
     private $usedTreeItems = [];
+
+    /**
+     * @var string
+     */
+    private $message = '';
 
     /**
      * Parser constructor.
@@ -48,7 +56,28 @@ class Parser {
         }
 
         $this->tree = $this->buildTreeFromObjects($this->entities);
+        $this->message = $this->buildMessage($this->entities);
+    }
 
+    /**
+     * @return string
+     */
+    public function getMessage(): string {
+        return $this->message;
+    }
+
+    /**
+     * @param $entities
+     *
+     * @return string
+     */
+    protected function buildMessage($entities): string {
+        $wordArr = [];
+        foreach($entities as $entity){
+            $wordArr[$entity->getId()] = $entity->getWord();
+        }
+        ksort($wordArr);
+        return implode(' ', $wordArr);
     }
 
     /**
