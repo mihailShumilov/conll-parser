@@ -42,6 +42,8 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
         $this->assertIsString($parser->getMessage());
 
+        echo $parser->getMessage().PHP_EOL;
+
         if(!empty($persons)) {
             echo PHP_EOL;
             print_r($persons);
@@ -64,7 +66,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
     public function provider(): array {
         $data = [];
-        $files = glob(__DIR__ . '/../text/t11.conll');
+        $files = glob(__DIR__ . '/../text/t21.conll');
         foreach ($files as $file) {
             $content = file_get_contents($file);
             $data[]  = [$content];
