@@ -300,31 +300,38 @@ class Parser {
     private function analyzeWho(): void {
         ksort($this->who, SORT_NUMERIC);
 
-        $personRole = [];
-        $lastId     = min(array_keys($this->who));
+        if (!empty($this->who)) {
+            $personRole = [];
+            $lastId     = min(array_keys($this->who));
 
-        foreach ($this->who as $index => $word) {
-            if (($index - $lastId) > 1) {
-                $name = $this->tryGetName($lastId);
-                if (strlen($name)) {
-                    $this->persons[] = [
-                        'name' => $name,
-                        'role' => implode(' ', $personRole)
-                    ];
+            foreach ($this->who as $index => $word) {
+                if (($index - $lastId) > 1) {
+                    $name = $this->tryGetName($lastId);
+                    if ($name !== '') {
+                        $this->processName($name, implode(' ', $personRole));
+                    }
+
+                    $personRole = [];
                 }
-
-                $personRole = [];
+                $personRole[$index] = $word;
+                $lastId             = $index;
             }
-            $personRole[$index] = $word;
-            $lastId             = $index;
+
+            $name = $this->tryGetName($lastId);
+
+            if ($name !== '') {
+                $this->processName($name, implode(' ', $personRole));
+            }
         }
+    }
 
-        $name = $this->tryGetName($lastId);
-
-        if (strlen($name)) {
+    private function processName(string $name, string $role): void {
+        foreach (explode(' и ', $name) as $item) {
+            ksort($this->what);
             $this->persons[] = [
-                'name' => $name,
-                'role' => implode(' ', $personRole)
+                'name'    => $item,
+                'role'    => $role,
+                'actions' => $this->rootAction . ' ' . implode(' ', $this->what)
             ];
         }
     }
@@ -351,7 +358,9 @@ class Parser {
                 Entity::ROLE_NAME,
                 Entity::ROLE_APPOS,
                 Entity::ROLE_DOBJ,
-                Entity::ROLE_PARATAXIS
+                Entity::ROLE_PARATAXIS,
+                Entity::ROLE_CC,
+                Entity::ROLE_CONJ
             ], false)) {
                 if (!isset($this->whoEntity[$item['entity']->getId()])) {
                     $name[$item['entity']->getId()] = $item['entity'];
