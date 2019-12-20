@@ -53,6 +53,31 @@ class Parser {
     private $message = '';
 
     /**
+     * @var string
+     */
+    private $rootAction = '';
+
+    /**
+     * @var array
+     */
+    private $what = [];
+
+    /**
+     * @var array
+     */
+    private $whatEntity = [];
+
+    /**
+     * @var array
+     */
+    private $who = [];
+
+    /**
+     * @var array
+     */
+    private $whoEntity = [];
+
+    /**
      * Parser constructor.
      *
      * @param string $conllText
@@ -156,109 +181,190 @@ class Parser {
 
 
     private function processTree(array $tree, int $level = 0): void {
-//        echo "\n";
+
         foreach ($tree as $levelData) {
             /**
              * @var Entity $entity
              */
             $entity = $levelData['entity'];
-//            $preText = str_pad('', $level, "\t");
-//            print_r($preText . $level.' ');
-//            print_r($preText . $entity->getWord().' '.$entity->getId());
-//            echo "\n";
-            if (in_array($entity->getRole(), [
-                Entity::ROLE_APPOS,
+
+            //Check if that is ROOT
+            if ($entity->getRole() === Entity::ROLE_ROOT) {
+                $this->rootAction = $entity->getWord();
+
+                //Detect WHAT
+                if (!empty($levelData['child'])) {
+                    $this->detectWhat($levelData['child'], $level + 1);
+                }
+
+                //Detect WHO
+                if (!empty($levelData['child'])) {
+                    $this->detectWho($levelData['child'], $level + 1);
+                    $this->analyzeWho();
+                }
+            }
+
+
+//            if (!empty($levelData['child'])) {
+//                $this->processTree($levelData['child'], $level + 1);
+//            }
+        }
+    }
+
+    private function detectWhat(array $tree, int $level = 0): void {
+        foreach ($tree as $levelData) {
+            /**
+             * @var Entity $entity
+             */
+            $entity = $levelData['entity'];
+            if (in_array($entity->getRole(), [Entity::ROLE_DOBJ])) {
+                $this->what[$entity->getId()]       = $entity->getWord();
+                $this->whatEntity[$entity->getId()] = $entity;
+                if (!empty($levelData['child'])) {
+                    $this->detectWhatDetails($levelData['child'], $level + 1, true);
+                }
+                return;
+            }
+        }
+
+        if (!empty($levelData['child'])) {
+            $this->detectWhat($levelData['child'], $level + 1);
+        }
+        return;
+    }
+
+
+    private function detectWhatDetails(array $tree, int $level = 0, bool $firstCall = false): void {
+        foreach ($tree as $levelData) {
+            /**
+             * @var Entity $entity
+             */
+            $entity = $levelData['entity'];
+            if (in_array($entity->getRole(), [Entity::ROLE_NAME, Entity::ROLE_AMOD, Entity::ROLE_NMOD],
+                         false) && $firstCall) {
+                $this->what[$entity->getId()]       = $entity->getWord();
+                $this->whatEntity[$entity->getId()] = $entity;
+                if (!empty($levelData['child'])) {
+                    $this->detectWhatDetails($levelData['child'], $level + 1, true);
+                }
+            }
+        }
+
+        if (!empty($levelData['child'])) {
+            $this->detectWhoDetails($levelData['child'], $level + 1);
+        }
+    }
+
+    private function detectWho(array $tree, int $level = 0): void {
+        foreach ($tree as $levelData) {
+            /**
+             * @var Entity $entity
+             */
+            $entity = $levelData['entity'];
+            if (in_array($entity->getRole(), [Entity::ROLE_NSUBJ], false)) {
+                $this->who[$entity->getId()]       = $entity->getWord();
+                $this->whoEntity[$entity->getId()] = $levelData;
+                if (!empty($levelData['child'])) {
+                    $this->detectWhoDetails($levelData['child'], $level + 1, true);
+                }
+                return;
+            }
+        }
+
+        if (!empty($levelData['child'])) {
+            $this->detectWho($levelData['child'], $level + 1);
+        }
+    }
+
+    private function detectWhoDetails(array $tree, int $level = 0, bool $firstCall = false): void {
+        foreach ($tree as $levelData) {
+            /**
+             * @var Entity $entity
+             */
+            $entity = $levelData['entity'];
+            if (in_array($entity->getRole(), [Entity::ROLE_CC, Entity::ROLE_AMOD, Entity::ROLE_CONJ],
+                         false) && $firstCall) {
+                $this->who[$entity->getId()]       = $entity->getWord();
+                $this->whoEntity[$entity->getId()] = $levelData;
+                if (!empty($levelData['child'])) {
+                    $this->detectWhoDetails($levelData['child'], $level + 1, true);
+                }
+            }
+        }
+
+        if (!empty($levelData['child'])) {
+            $this->detectWhoDetails($levelData['child'], $level + 1);
+        }
+    }
+
+    private function analyzeWho(): void {
+        ksort($this->who, SORT_NUMERIC);
+
+        $personRole = [];
+        $lastId     = min(array_keys($this->who));
+
+        foreach ($this->who as $index => $word) {
+            if (($index - $lastId) > 1) {
+                $name = $this->tryGetName($lastId);
+                if (strlen($name)) {
+                    $this->persons[] = [
+                        'name' => $name,
+                        'role' => implode(' ', $personRole)
+                    ];
+                }
+
+                $personRole = [];
+            }
+            $personRole[$index] = $word;
+            $lastId             = $index;
+        }
+
+        $name = $this->tryGetName($lastId);
+
+        if (strlen($name)) {
+            $this->persons[] = [
+                'name' => $name,
+                'role' => implode(' ', $personRole)
+            ];
+        }
+    }
+
+    private function tryGetName(int $entityId): string {
+        $personNameArr = $this->getRoleName($this->whoEntity[$entityId]);
+        $personName    = [];
+        ksort($personNameArr);
+        foreach ($personNameArr as $pnItem) {
+            $personName[] = $pnItem->getWord();
+        }
+        return implode(' ', $personName);
+    }
+
+    private function getRoleName(array $entity): array {
+        $name = [];
+        /**
+         * @var Entity $item
+         */
+        foreach ($entity['child'] as $item) {
+            if (in_array($item['entity']->getRole(), [
+                Entity::ROLE_AMOD,
                 Entity::ROLE_NMOD,
-                Entity::ROLE_NUMMOD,
-                Entity::ROLE_NSUBJ,
-                Entity::ROLE_OBJ,
-                Entity::ROLE_IOBJ
+                Entity::ROLE_NAME,
+                Entity::ROLE_APPOS,
+                Entity::ROLE_DOBJ,
+                Entity::ROLE_PARATAXIS
             ], false)) {
-                $this->processSubjectNode($entity, $levelData['child']);
-            }
-            if (!empty($levelData['child'])) {
-                $this->processTree($levelData['child'], $level + 1);
-            }
-        }
-    }
-
-    /**
-     * @param Entity   $entity
-     * @param Entity[] $child
-     */
-    private function processSubjectNode(Entity $entity, array $child = []) {
-        if (!in_array($entity->getId(), $this->usedPersonsNodes, false)) {
-
-            //if node has child with role 'appos' - that is node with subject position
-            if (!empty($child)) {
-                foreach ($child as $childData) {
-                    $item = $childData['entity'];
-                    if (in_array($item->getRole(), [
-                        Entity::ROLE_APPOS
-                    ], false)) {
-                        $this->subjectPositions[$item->getId()] = $this->getPosition($entity, $child);
-                    }
-                }
-            }
-
-            $subjectLabel = $entity->getWord();
-            if (!empty($child)) {
-                foreach ($child as $childData) {
-                    $item = $childData['entity'];
-                    if (in_array($item->getRole(), [
-                        Entity::ROLE_DOBJ,
-                        Entity::ROLE_NAME,
-                        Entity::ROLE_NUMMOD
-                    ], false)) {
-                        $subjectLabel             .= ' ' . $item->getWord();
-                        $this->usedPersonsNodes[] = $item->getId();
-                    }
-                }
-            }
-
-
-            if ($subjectLabel) {
-                $this->usedPersonsNodes[] = $entity->getId();
-                $person                   = [];
-                $person['name']           = $subjectLabel;
-                if (isset($this->subjectPositions[$entity->getId()])) {
-                    $person['position'] = $this->subjectPositions[$entity->getId()];
-                }
-                $this->persons[] = $person;
-            }
-
-
-        }
-    }
-
-
-    private function getPosition(Entity $entity, array $child = []): string {
-        $positionLabels = [];
-
-        $positionLabels[$entity->getId()] = $entity->getWord();
-
-        if (!empty($child)) {
-            foreach ($child as $childData) {
-                $item = $childData['entity'];
-                if (in_array($item->getRole(), [
-                    Entity::ROLE_DOBJ,
-                    Entity::ROLE_AMOD,
-                    Entity::ROLE_CASE,
-                    Entity::ROLE_NMOD
-                ], false)) {
-                    $positionLabels[$item->getId()] = $item->getWord();
-                    if (!empty($childData['child'])) {
-                        $nextLevel      = $this->getAllChild($childData['child']);
-                        $positionLabels += $nextLevel;
+                if (!isset($this->whoEntity[$item['entity']->getId()])) {
+                    $name[$item['entity']->getId()] = $item['entity'];
+                    if (!empty($item['child'])) {
+                        $name += $this->getRoleName($item);
                     }
                 }
             }
         }
 
-        ksort($positionLabels, SORT_NUMERIC);
-
-        return implode(' ', $positionLabels);
+        return $name;
     }
+
 
     /**
      * @return Entity[]

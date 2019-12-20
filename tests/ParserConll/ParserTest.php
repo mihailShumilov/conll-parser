@@ -66,7 +66,7 @@ class ParserTest extends \PHPUnit\Framework\TestCase {
 
     public function provider(): array {
         $data = [];
-        $files = glob(__DIR__ . '/../text/t21.conll');
+        $files = glob(__DIR__ . '/../text/*.conll');
         foreach ($files as $file) {
             $content = file_get_contents($file);
             $data[]  = [$content];

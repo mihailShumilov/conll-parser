@@ -15,18 +15,18 @@ class Entity implements \JsonSerializable {
     public const ROLE_NUMMOD = 'nummod';
 
     //Core
-    public const ROLE_OBJ   = 'obj';
-    public const ROLE_IOBJ  = 'iobj';
-    public const ROLE_NSUBJ = 'nsubj';
-
-    public const ROLE_NAME = 'name';
-    public const ROLE_DOBJ = 'dobj';
-    public const ROLE_AMOD = 'amod';
-
-    public const ROLE_CASE = 'case';
-    public const ROLE_CONJ = 'conj';
-    public const ROLE_DET  = 'det';
-    public const ROLE_CC   = 'cc';
+    public const ROLE_OBJ       = 'obj';
+    public const ROLE_IOBJ      = 'iobj';
+    public const ROLE_NSUBJ     = 'nsubj';
+    public const ROLE_NAME      = 'name';
+    public const ROLE_DOBJ      = 'dobj';
+    public const ROLE_AMOD      = 'amod';
+    public const ROLE_CASE      = 'case';
+    public const ROLE_CONJ      = 'conj';
+    public const ROLE_DET       = 'det';
+    public const ROLE_CC        = 'cc';
+    public const ROLE_ROOT      = 'ROOT';
+    public const ROLE_PARATAXIS = 'parataxis';
 
 
     public const WORD_FORM_VERB = 'VERB';
@@ -156,7 +156,7 @@ class Entity implements \JsonSerializable {
         $parts = explode('|', $data);
         $attr  = [];
         foreach ($parts as $part) {
-            list($key, $val) = explode('=', $part);
+            [$key, $val] = explode('=', $part);
             $attr[$key] = $val;
         }
 
